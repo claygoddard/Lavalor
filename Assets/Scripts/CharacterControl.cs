@@ -10,6 +10,8 @@ public class CharacterControl : MonoBehaviour {
 	private Vector3 velocity = Vector3.zero;
 	private float damping = .9f;
 	private Vector3 rightBeforeJump;
+	private bool hasSpeedPowerup;
+	private float powerupClock = 0;
 	bool grounded = false;
 	bool anyMovementKeysDown = false;
 	private Vector3 lastHitNormal;
@@ -49,7 +51,25 @@ public class CharacterControl : MonoBehaviour {
 		} else {
 			this.AirUpdate(hRotation, hMovement);
 		}
-		
+		powerupClock -= .02f;
+		if(powerupClock >= 0)
+		{
+			if(powerupClock%0.4f < 0.2f)
+			{
+				renderer.material.color = Color.green;	
+			}
+			else
+			{
+				renderer.material.color = Color.yellow;
+			}
+		}
+		else
+		{
+			renderer.material.color = Color.white;
+			hasSpeedPowerup = false;
+			jumpSpeed = 12f;
+			moveSpeed = 1f;
+		}
 		CheckCollisionFlags();
 		anyMovementKeysDown = false;
 	}
@@ -104,5 +124,13 @@ public class CharacterControl : MonoBehaviour {
 	
 	void OnControllerColliderHit (ControllerColliderHit hit) {
 		lastHitNormal = hit.normal;
+		if(hit.gameObject.name == "Powerup"){
+			Destroy(hit.gameObject);
+			hasSpeedPowerup = true;
+			powerupClock = 10f;
+			renderer.material.color = Color.green;
+			moveSpeed = 1.5f;
+			jumpSpeed = 18f;
+		}
 	}
 }
