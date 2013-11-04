@@ -94,6 +94,7 @@ public class CharacterControl : MonoBehaviour {
 	}
 	
 	void GroundedUpdate (float hRotation, float hMovement) {
+		GameManager.gameStarted = true;
 		velocity.y = 0.0f;
 		if (Input.GetKey(KeyCode.Space)) {
 			velocity.y = jumpSpeed;
@@ -125,6 +126,7 @@ public class CharacterControl : MonoBehaviour {
 	void OnControllerColliderHit (ControllerColliderHit hit) {
 		lastHitNormal = hit.normal;
 		if(hit.gameObject.name == "Powerup"){
+			GameManager.gameScore += 20;
 			Destroy(hit.gameObject);
 			hasSpeedPowerup = true;
 			powerupClock = 10f;

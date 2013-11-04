@@ -22,6 +22,9 @@ public class GameManager : MonoBehaviour {
 	private float endGameTime = 2.0f;
 	public string endGameText;
 	
+	public static int gameScore = 0;
+	public static bool gameStarted = false;
+	
 	void Start () {
 		crate = Resources.Load("Crate") as GameObject;
 		crateLong = Resources.Load("CrateLong") as GameObject;
@@ -35,7 +38,9 @@ public class GameManager : MonoBehaviour {
 		if (endGame) {
 			GUI.Label(new Rect(Screen.width/2.0f,0.0f,Screen.width, Screen.height), endGameText);
 		}
-		GUI.Label(new Rect(0.0f,0.0f,Screen.width, Screen.height), "HEIGHT: " + player.gameObject.transform.position.y);
+		GUI.Label(new Rect(0.0f,0.0f,Screen.width, Screen.height), "SCORE: " + gameScore);
+		GUI.Label(new Rect(0.0f,20.0f,Screen.width, Screen.height), "HIGH SCORE: " + PlayerPrefs.GetInt("highScore", 0));
+		//GUI.Label(new Rect(0.0f,40.0f,Screen.width, Screen.height), "HEIGHT: " + player.gameObject.transform.position.y);
 	}
 	
 	void FixedUpdate () {
@@ -50,6 +55,10 @@ public class GameManager : MonoBehaviour {
 		}
 		lava.transform.Translate(Vector3.up * lavaSpeed * Time.deltaTime);
 		
+		if ((player.gameObject.transform.position.y-0.58) * 10 > gameScore && gameStarted) {
+			gameScore = (int)((player.gameObject.transform.position.y-0.58) * 10);
+		}
+		
 		if (player.renderer.bounds.Intersects(lava.renderer.bounds)) {
 			endGame = true;
 			endGameText = "DIED BY LAVA";
@@ -58,6 +67,11 @@ public class GameManager : MonoBehaviour {
 		if (endGame) {
 			endGameCount += Time.deltaTime;
 			if (endGameCount > endGameTime) {
+				if (gameScore > PlayerPrefs.GetInt("highScore", 0)){
+					PlayerPrefs.SetInt("highScore", gameScore);
+				}
+				gameScore = 0;
+				gameStarted = false;
 				Application.LoadLevel(0);
 			}
 		}
