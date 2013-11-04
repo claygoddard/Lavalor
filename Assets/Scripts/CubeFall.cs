@@ -9,7 +9,7 @@ public class CubeFall : MonoBehaviour {
 	void Start () {
 		renderer.receiveShadows = true;
 		while(Physics.CheckSphere(transform.position, renderer.bounds.size.y / 2.0f)) {
-			transform.Translate(Vector3.up * renderer.bounds.size.y / 2.0f);
+			transform.Translate(Vector3.up * renderer.bounds.size.y);
 		}
 		fallSpeed += Random.Range(-1.0f, 2.0f);
 	}
@@ -34,12 +34,8 @@ public class CubeFall : MonoBehaviour {
 						}
 					} else {
 						grounded = true;
+						GameObject.Find("GameManager").GetComponent<GameManager>().CrateGrounded(transform.position.y);
 					}
-				}
-				if (cp.otherCollider.gameObject.name == "Character" && cp.otherCollider.gameObject.GetComponent<CharacterController>().isGrounded) {
-					GameManager gm = GameObject.Find("GameManager").GetComponent<GameManager>();
-					gm.endGame = true;
-					gm.endGameText = "DIED BY SQUISHING!!";
 				}
 			}
 		}

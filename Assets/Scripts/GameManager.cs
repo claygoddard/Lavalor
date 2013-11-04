@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour {
 	private GameObject crateLong;
 	private float newCrateCounter = 0.0f;
 	private float newCrateCounterMax = 1.0f;
+	private float highestGroundedCrate = 0.0f;
 	
 	private float groundWidth = 10.0f;
 	
@@ -51,7 +52,7 @@ public class GameManager : MonoBehaviour {
 		newCrateCounter += Time.deltaTime;
 		if (newCrateCounter > newCrateCounterMax) {
 			newCrateCounter = 0.0f;
-			AddCrate(lava.transform.position.y + 20.0f);
+			AddCrate(Mathf.Max(player.transform.position.y, highestGroundedCrate) + 10.0f);
 		}
 		lava.transform.Translate(Vector3.up * lavaSpeed * Time.deltaTime);
 		
@@ -105,8 +106,8 @@ public class GameManager : MonoBehaviour {
 		if (Random.Range(0.0f, 1.0f) < .5f) {
 			whichCrate = crateLong;
 		}
-		float x = (float)Random.Range(-5, 5) + .5f;
-		float z = (float)Random.Range(-5, 5) + .5f;
+		float x = (float)Random.Range(-5, 4) + .5f;
+		float z = (float)Random.Range(-5, 4) + .5f;
 		GameObject clone = GameObject.Instantiate(whichCrate, new Vector3(x, height, z), Quaternion.identity) as GameObject;
 		if (Random.Range(0.0f, 1.0f) < .5f) {
 			clone.transform.Rotate(Vector3.right, 90.0f);
@@ -115,5 +116,11 @@ public class GameManager : MonoBehaviour {
 			clone.transform.Rotate(Vector3.up, 90.0f, Space.World);
 		}
 		clone.name = crate.name;
+	}
+	
+	public void CrateGrounded(float atHeight) {
+		if (atHeight > this.highestGroundedCrate) {
+			this.highestGroundedCrate = atHeight;
+		}
 	}
 }

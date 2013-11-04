@@ -77,6 +77,11 @@ public class CharacterControl : MonoBehaviour {
 	void CheckCollisionFlags () {
 		if (velocity.y > 0.0f && (cc.collisionFlags & CollisionFlags.Above) != 0) {
 			velocity.y = 0.0f;
+			foreach (Collider c in Physics.OverlapSphere(transform.position, collider.bounds.size.y * 2.0f)) {
+				if (c.name == "Crate") {
+					velocity.y = Mathf.Min(0.0f, c.gameObject.GetComponent<CubeFall>().fallSpeed * -1);
+				}
+			}
 		}
 	}
 	
@@ -133,6 +138,17 @@ public class CharacterControl : MonoBehaviour {
 			renderer.material.color = Color.green;
 			moveSpeed = 1.5f;
 			jumpSpeed = 18f;
+		}
+		if(hit.gameObject.name == "Crate"){
+			if(Vector3.Dot(hit.normal, Vector3.down) > .8f) {
+				if((cc.collisionFlags & CollisionFlags.Above) == CollisionFlags.Above && (cc.collisionFlags & CollisionFlags.Below) == CollisionFlags.Below) {
+					// Crate above, something else below, died of squishing
+					// more reliable than before
+					GameManager gm = GameObject.Find("GameManager").GetComponent<GameManager>();
+					gm.endGame = true;
+					gm.endGameText = "DIED BY SQUISHING!!";
+				}
+			}
 		}
 	}
 }
