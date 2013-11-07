@@ -11,10 +11,12 @@ public class CharacterControl : MonoBehaviour {
 	private float damping = .9f;
 	private Vector3 rightBeforeJump;
 	private bool hasSpeedPowerup;
+	public bool isDying;
 	private float powerupClock = 0;
 	bool grounded = false;
 	bool anyMovementKeysDown = false;
 	private Vector3 lastHitNormal;
+	public ParticleSystem playerFire;
 	
 	public Transform playerFollow;
 	
@@ -22,30 +24,34 @@ public class CharacterControl : MonoBehaviour {
 		cc = gameObject.GetComponent<CharacterController>();
 		this.playerFollow.position = this.transform.position + this.transform.up;
 		this.playerFollow.rotation = this.transform.rotation;
+		hasSpeedPowerup = false;
+		isDying = false;
+		playerFire.Stop();
 	}
 	
 	void Update () {
 		float hRotation = 0.0f;
 		float hMovement = 0.0f;
-		
-		if (Input.GetKey(KeyCode.LeftArrow)) {
-			hRotation -= turnSpeed;
-			anyMovementKeysDown = true;
+		if(!isDying)
+		{
+			if (Input.GetKey(KeyCode.LeftArrow)) {
+				hRotation -= turnSpeed;
+				anyMovementKeysDown = true;
+			}
+			if (Input.GetKey(KeyCode.RightArrow)) {
+				hRotation += turnSpeed;
+				anyMovementKeysDown = true;
+			}
+			
+			if (Input.GetKey(KeyCode.UpArrow)) {
+				hMovement += moveSpeed;
+				anyMovementKeysDown = true;
+			}
+			if (Input.GetKey(KeyCode.DownArrow)) {
+				hMovement -= moveSpeed;
+				anyMovementKeysDown = true;
+			}
 		}
-		if (Input.GetKey(KeyCode.RightArrow)) {
-			hRotation += turnSpeed;
-			anyMovementKeysDown = true;
-		}
-		
-		if (Input.GetKey(KeyCode.UpArrow)) {
-			hMovement += moveSpeed;
-			anyMovementKeysDown = true;
-		}
-		if (Input.GetKey(KeyCode.DownArrow)) {
-			hMovement -= moveSpeed;
-			anyMovementKeysDown = true;
-		}
-		
 		if (cc.isGrounded) {
 			this.GroundedUpdate(hRotation, hMovement);
 		} else {
@@ -101,7 +107,7 @@ public class CharacterControl : MonoBehaviour {
 	void GroundedUpdate (float hRotation, float hMovement) {
 		GameManager.gameStarted = true;
 		velocity.y = 0.0f;
-		if (Input.GetKey(KeyCode.Space)) {
+		if (Input.GetKey(KeyCode.Space) && !isDying) {
 			velocity.y = jumpSpeed;
 		}
 		RotateAndMove(hRotation, hMovement);
@@ -145,8 +151,18 @@ public class CharacterControl : MonoBehaviour {
 					// Crate above, something else below, died of squishing
 					// more reliable than before
 					GameManager gm = GameObject.Find("GameManager").GetComponent<GameManager>();
-					gm.endGame = true;
+					isDying = true;
 					gm.endGameText = "DIED BY SQUISHING!!";
+					
+					//Squishing death animation
+					Vector3 originalScale = transform.localScale;
+					Vector3 crushedScale = transform.localScale;
+					crushedScale.y = 0.1f;
+					for(float i=0f; i<3f; i+= 0.01f)
+					{
+						transform.localScale = Vector3.Lerp(originalScale, crushedScale, i/3.0f);
+					}
+					gm.endGame = true;
 				}
 			}
 		}

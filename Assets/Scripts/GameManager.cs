@@ -61,8 +61,11 @@ public class GameManager : MonoBehaviour {
 		}
 		
 		if (player.renderer.bounds.Intersects(lava.renderer.bounds)) {
-			endGame = true;
+			CharacterControl characterScript = GameObject.Find("Character").GetComponent<CharacterControl>();
+			characterScript.isDying = true;
+			characterScript.playerFire.Play();
 			endGameText = "DIED BY LAVA";
+			endGame = true;
 		}
 		
 		if (endGame) {
