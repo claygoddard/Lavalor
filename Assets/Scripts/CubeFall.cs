@@ -29,6 +29,7 @@ public class CubeFall : MonoBehaviour {
 						CubeFall theirs = cp.otherCollider.gameObject.GetComponent<CubeFall>();
 						if (theirs.grounded) {
 							grounded = true;
+							GameObject.Find("GameManager").GetComponent<GameManager>().CrateGrounded(transform.position.y);
 						} else {
 							fallSpeed = theirs.fallSpeed;
 						}

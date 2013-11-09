@@ -4,11 +4,12 @@ using System.Collections;
 public class CharacterControl : MonoBehaviour {
 	private CharacterController cc;
 	
-	private float moveSpeed = 1f;
+	private float moveSpeed = 2f;
 	private float turnSpeed = 150.0f;
-	private float jumpSpeed = 12.0f;
+	private float initialJumpSpeed = 12.0f;
+	private float jumpSpeed;
 	private Vector3 velocity = Vector3.zero;
-	private float damping = .9f;
+	private float damping = .8f;
 	private Vector3 rightBeforeJump;
 	private bool hasSpeedPowerup;
 	public bool isDying;
@@ -27,35 +28,42 @@ public class CharacterControl : MonoBehaviour {
 		hasSpeedPowerup = false;
 		isDying = false;
 		playerFire.Stop();
+		jumpSpeed = initialJumpSpeed;
+	}
+	
+	void OnMouseDown () {
+		Screen.lockCursor = true;
 	}
 	
 	void Update () {
 		float hRotation = 0.0f;
 		float hMovement = 0.0f;
+		float sMovement = 0.0f;
 		if(!isDying)
 		{
-			if (Input.GetKey(KeyCode.LeftArrow)) {
-				hRotation -= turnSpeed;
+			if (Input.GetMouseButton(0) || Input.GetMouseButton(1)) {
+				hRotation = Input.GetAxis("Mouse X") * turnSpeed;
 				anyMovementKeysDown = true;
+				Screen.lockCursor = true;
+			} else {
+				Screen.lockCursor = false;
 			}
-			if (Input.GetKey(KeyCode.RightArrow)) {
-				hRotation += turnSpeed;
-				anyMovementKeysDown = true;
+			hMovement = Input.GetAxis("Vertical") * moveSpeed;
+			sMovement = Input.GetAxis("Horizontal") * moveSpeed / 3.0f;
+			if (hMovement != 0.0f) {
+				hMovement /= Mathf.Abs(Input.GetAxis("Vertical"));
 			}
-			
-			if (Input.GetKey(KeyCode.UpArrow)) {
-				hMovement += moveSpeed;
-				anyMovementKeysDown = true;
+			if (sMovement != 0.0f) {
+				sMovement /= Mathf.Abs(Input.GetAxis("Horizontal"));
 			}
-			if (Input.GetKey(KeyCode.DownArrow)) {
-				hMovement -= moveSpeed;
+			if (hRotation != 0.0f || hMovement != 0.0f || sMovement != 0.0f) {
 				anyMovementKeysDown = true;
 			}
 		}
 		if (cc.isGrounded) {
-			this.GroundedUpdate(hRotation, hMovement);
+			this.GroundedUpdate(hRotation, hMovement, sMovement);
 		} else {
-			this.AirUpdate(hRotation, hMovement);
+			this.AirUpdate(hRotation, hMovement, sMovement);
 		}
 		powerupClock -= .02f;
 		if(powerupClock >= 0)
@@ -73,8 +81,7 @@ public class CharacterControl : MonoBehaviour {
 		{
 			renderer.material.color = Color.white;
 			hasSpeedPowerup = false;
-			jumpSpeed = 12f;
-			moveSpeed = 1f;
+			jumpSpeed = initialJumpSpeed;
 		}
 		CheckCollisionFlags();
 		anyMovementKeysDown = false;
@@ -91,10 +98,10 @@ public class CharacterControl : MonoBehaviour {
 		}
 	}
 	
-	void RotateAndMove (float hRotation, float hMovement) {
+	void RotateAndMove (float hRotation, float hMovement, float sMovement) {
 		cc.transform.Rotate(Vector3.up, hRotation * Time.deltaTime);
 		
-		Vector3 movement = cc.transform.forward * hMovement;
+		Vector3 movement = cc.transform.forward * hMovement + cc.transform.right * sMovement;
 		float dampingFactor = 1.0f;
 		if (cc.collisionFlags == CollisionFlags.Sides && anyMovementKeysDown) {
 			dampingFactor = .75f;
@@ -104,18 +111,18 @@ public class CharacterControl : MonoBehaviour {
 		cc.Move(velocity * Time.deltaTime);
 	}
 	
-	void GroundedUpdate (float hRotation, float hMovement) {
+	void GroundedUpdate (float hRotation, float hMovement, float sMovement) {
 		GameManager.gameStarted = true;
 		velocity.y = 0.0f;
 		if (Input.GetKey(KeyCode.Space) && !isDying) {
 			velocity.y = jumpSpeed;
 		}
-		RotateAndMove(hRotation, hMovement);
+		RotateAndMove(hRotation, hMovement, sMovement);
 		this.playerFollow.position = this.transform.position + this.transform.up;
 		this.playerFollow.rotation = this.transform.rotation;
 	}
 	
-	void AirUpdate (float hRotation, float hMovement) {
+	void AirUpdate (float hRotation, float hMovement, float sMovement) {
 		if (cc.collisionFlags == CollisionFlags.Sides && anyMovementKeysDown) {
 			if (velocity.y > 0.0f) {
 				velocity.y += Physics.gravity.y / .5f * Time.deltaTime;
@@ -130,7 +137,7 @@ public class CharacterControl : MonoBehaviour {
 		} else {
 			velocity.y += Physics.gravity.y * Time.deltaTime;
 		}
-		RotateAndMove(hRotation, hMovement);
+		RotateAndMove(hRotation, hMovement, sMovement);
 		this.playerFollow.position = this.transform.position + this.transform.up;
 	}
 	
@@ -142,7 +149,6 @@ public class CharacterControl : MonoBehaviour {
 			hasSpeedPowerup = true;
 			powerupClock = 10f;
 			renderer.material.color = Color.green;
-			moveSpeed = 1.5f;
 			jumpSpeed = 18f;
 		}
 		if(hit.gameObject.name == "Crate"){

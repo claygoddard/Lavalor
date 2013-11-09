@@ -32,10 +32,10 @@ public class CameraFollow : MonoBehaviour
 			float currentHeight = transform.position.y;
  
 			// Damp the rotation around the y-axis
-			currentRotationAngle = Mathf.LerpAngle (currentRotationAngle, wantedRotationAngle, rotationDamping * Time.deltaTime);
+			currentRotationAngle = wantedRotationAngle; //Mathf.LerpAngle (currentRotationAngle, wantedRotationAngle, rotationDamping * Time.deltaTime);
  
 			// Damp the height
-			currentHeight = Mathf.Lerp (currentHeight, wantedHeight, heightDamping * Time.deltaTime);
+			currentHeight = wantedHeight; //Mathf.Lerp (currentHeight, wantedHeight, heightDamping * Time.deltaTime);
  
 			// Convert the angle into a rotation
 			Quaternion currentRotation = Quaternion.Euler (0, currentRotationAngle, 0);

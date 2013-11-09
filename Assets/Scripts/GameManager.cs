@@ -26,6 +26,8 @@ public class GameManager : MonoBehaviour {
 	public static int gameScore = 0;
 	public static bool gameStarted = false;
 	
+	private float crateAddSpeed = 1.0f;
+	
 	void Start () {
 		crate = Resources.Load("Crate") as GameObject;
 		crateLong = Resources.Load("CrateLong") as GameObject;
@@ -49,12 +51,14 @@ public class GameManager : MonoBehaviour {
 	}
 	
 	void Update () {
-		newCrateCounter += Time.deltaTime;
+		newCrateCounter += Time.deltaTime * crateAddSpeed;
 		if (newCrateCounter > newCrateCounterMax) {
 			newCrateCounter = 0.0f;
+			Debug.Log(Mathf.Max(player.transform.position.y, highestGroundedCrate));
 			AddCrate(Mathf.Max(player.transform.position.y, highestGroundedCrate) + 10.0f);
 		}
-		lava.transform.Translate(Vector3.up * lavaSpeed * Time.deltaTime);
+		crateAddSpeed += .00001f;
+		lava.transform.Translate(Vector3.up * lavaSpeed * Mathf.Sqrt(crateAddSpeed) * Time.deltaTime);
 		
 		if ((player.gameObject.transform.position.y-0.58) * 10 > gameScore && gameStarted) {
 			gameScore = (int)((player.gameObject.transform.position.y-0.58) * 10);
@@ -118,6 +122,7 @@ public class GameManager : MonoBehaviour {
 		if (Random.Range(0.0f, 1.0f) < .5f) {
 			clone.transform.Rotate(Vector3.up, 90.0f, Space.World);
 		}
+		clone.GetComponent<CubeFall>().fallSpeed *= crateAddSpeed;
 		clone.name = crate.name;
 	}
 	
