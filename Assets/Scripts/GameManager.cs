@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviour {
 			Debug.Log(Mathf.Max(player.transform.position.y, highestGroundedCrate));
 			AddCrate(Mathf.Max(player.transform.position.y, highestGroundedCrate) + 10.0f);
 		}
-		crateAddSpeed += .00001f;
+		crateAddSpeed += .0001f;
 		lava.transform.Translate(Vector3.up * lavaSpeed * Mathf.Sqrt(crateAddSpeed) * Time.deltaTime);
 		
 		if ((player.gameObject.transform.position.y-0.58) * 10 > gameScore && gameStarted) {

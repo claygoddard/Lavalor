@@ -16,6 +16,7 @@ public class CharacterControl : MonoBehaviour {
 	private float powerupClock = 0;
 	bool grounded = false;
 	bool anyMovementKeysDown = false;
+	bool anyDirectionalKeysDown = false;
 	private Vector3 lastHitNormal;
 	public ParticleSystem playerFire;
 	
@@ -59,6 +60,9 @@ public class CharacterControl : MonoBehaviour {
 			if (hRotation != 0.0f || hMovement != 0.0f || sMovement != 0.0f) {
 				anyMovementKeysDown = true;
 			}
+			if (hMovement != 0.0f || sMovement != 0.0f) {
+				anyDirectionalKeysDown = true;
+			}
 		}
 		if (cc.isGrounded) {
 			this.GroundedUpdate(hRotation, hMovement, sMovement);
@@ -85,6 +89,7 @@ public class CharacterControl : MonoBehaviour {
 		}
 		CheckCollisionFlags();
 		anyMovementKeysDown = false;
+		anyDirectionalKeysDown = false;
 	}
 	
 	void CheckCollisionFlags () {
@@ -105,6 +110,9 @@ public class CharacterControl : MonoBehaviour {
 		float dampingFactor = 1.0f;
 		if (cc.collisionFlags == CollisionFlags.Sides && anyMovementKeysDown) {
 			dampingFactor = .75f;
+		}
+		if (cc.collisionFlags == CollisionFlags.Below && !anyDirectionalKeysDown) {
+			dampingFactor = .5f;
 		}
 		velocity = new Vector3(velocity.x * damping * dampingFactor, velocity.y, velocity.z * damping * dampingFactor);
 		velocity = velocity + movement;
