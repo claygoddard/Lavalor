@@ -19,6 +19,7 @@ public class CharacterControl : MonoBehaviour {
 	bool anyDirectionalKeysDown = false;
 	private Vector3 lastHitNormal;
 	public ParticleSystem playerFire;
+	private bool first = true;
 	
 	public Transform playerFollow;
 	
@@ -30,6 +31,7 @@ public class CharacterControl : MonoBehaviour {
 		isDying = false;
 		playerFire.Stop();
 		jumpSpeed = initialJumpSpeed;
+		cc.Move(transform.forward);
 	}
 	
 	void OnMouseDown () {
@@ -50,8 +52,12 @@ public class CharacterControl : MonoBehaviour {
 				Screen.lockCursor = false;
 			}
 			hMovement = Input.GetAxis("Vertical") * moveSpeed;
+			if (first) {
+				// so hacky, eww
+				hMovement = moveSpeed * .1f;
+			}
 			sMovement = Input.GetAxis("Horizontal") * moveSpeed / 3.0f;
-			if (hMovement != 0.0f) {
+			if (hMovement != 0.0f && !first) {
 				hMovement /= Mathf.Abs(Input.GetAxis("Vertical"));
 			}
 			if (sMovement != 0.0f) {
@@ -63,6 +69,7 @@ public class CharacterControl : MonoBehaviour {
 			if (hMovement != 0.0f || sMovement != 0.0f) {
 				anyDirectionalKeysDown = true;
 			}
+			first = false;
 		}
 		if (cc.isGrounded) {
 			this.GroundedUpdate(hRotation, hMovement, sMovement);
@@ -149,18 +156,10 @@ public class CharacterControl : MonoBehaviour {
 		this.playerFollow.position = this.transform.position + this.transform.up;
 	}
 	
-	void OnControllerColliderHit (ControllerColliderHit hit) {
-		lastHitNormal = hit.normal;
-		if(hit.gameObject.name == "Powerup"){
-			GameManager.gameScore += 20;
-			Destroy(hit.gameObject);
-			hasSpeedPowerup = true;
-			powerupClock = 10f;
-			renderer.material.color = Color.green;
-			jumpSpeed = 18f;
-		}
-		if(hit.gameObject.name == "Crate"){
-			if(Vector3.Dot(hit.normal, Vector3.down) > .8f) {
+	void TestForCrate (GameObject go, Vector3 normal) {
+		if(go.name == "Crate"){
+			Debug.Log(cc.collisionFlags);
+			if(Vector3.Dot(normal, Vector3.down) > .8f) {
 				if((cc.collisionFlags & CollisionFlags.Above) == CollisionFlags.Above && (cc.collisionFlags & CollisionFlags.Below) == CollisionFlags.Below) {
 					// Crate above, something else below, died of squishing
 					// more reliable than before
@@ -180,5 +179,22 @@ public class CharacterControl : MonoBehaviour {
 				}
 			}
 		}
+	}
+	
+	void OnCollisionEnter (Collision col) {
+		TestForCrate(col.gameObject, col.contacts[0].normal);
+	}
+	
+	void OnControllerColliderHit (ControllerColliderHit hit) {
+		lastHitNormal = hit.normal;
+		if(hit.gameObject.name == "Powerup"){
+			GameManager.gameScore += 20;
+			Destroy(hit.gameObject);
+			hasSpeedPowerup = true;
+			powerupClock = 10f;
+			renderer.material.color = Color.green;
+			jumpSpeed = 18f;
+		}
+		TestForCrate(hit.gameObject, hit.normal);
 	}
 }

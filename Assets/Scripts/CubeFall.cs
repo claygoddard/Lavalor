@@ -9,9 +9,17 @@ public class CubeFall : MonoBehaviour {
 	void Start () {
 		renderer.receiveShadows = true;
 		while(Physics.CheckSphere(transform.position, renderer.bounds.size.y / 2.0f)) {
-			transform.Translate(Vector3.up * renderer.bounds.size.y);
+			transform.Translate(Vector3.up * renderer.bounds.size.y, Space.World);
 		}
-		fallSpeed += Random.Range(-1.0f, 2.0f);
+	}
+	
+	public void SetRotation (bool xRotate, bool yRotate) {
+		if (xRotate) {
+			transform.Rotate(transform.right, 90, Space.Self);
+		}
+		if (yRotate) {
+			transform.Rotate(transform.up, 90, Space.Self);
+		}
 	}
 	
 	// Update is called once per frame
@@ -24,7 +32,7 @@ public class CubeFall : MonoBehaviour {
 	void OnCollisionEnter(Collision col) {
 		foreach (ContactPoint cp in col.contacts) {
 			if (Vector3.Dot(cp.normal, Vector3.up) > .9) {
-				if ((cp.otherCollider.gameObject.name == "Ground" || cp.otherCollider.gameObject.name == "Crate")) {
+				if ((cp.otherCollider.gameObject.name == "Ground" || cp.otherCollider.gameObject.name == "Crate" || cp.otherCollider.gameObject.name == "Checkpoint")) {
 					if (cp.otherCollider.gameObject.name == "Crate") {
 						CubeFall theirs = cp.otherCollider.gameObject.GetComponent<CubeFall>();
 						if (theirs.grounded) {
