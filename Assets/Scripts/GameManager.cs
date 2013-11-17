@@ -132,7 +132,7 @@ public class GameManager : MonoBehaviour {
 			AddCrate(Mathf.Max(player.transform.position.y, highestGroundedCrate) + 10.0f);
 		}
 		crateAddSpeed += .0001f;
-		lava.transform.Translate(Vector3.up * lavaSpeed * Mathf.Sqrt(crateAddSpeed) * Time.deltaTime);
+		lava.transform.Translate(Vector3.up * lavaSpeed * Mathf.Sqrt(Mathf.Max(1.0f, player.transform.position.y - lava.transform.position.y) / 8.5f) * Time.deltaTime);
 		
 		if ((player.gameObject.transform.position.y-0.58) * 10 > gameScore && gameStarted) {
 			gameScore = (int)((player.gameObject.transform.position.y-0.58) * 10);

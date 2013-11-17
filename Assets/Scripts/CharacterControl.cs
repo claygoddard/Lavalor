@@ -144,7 +144,7 @@ public class CharacterControl : MonoBehaviour {
 			} else {
 				velocity.y += Physics.gravity.y * .1f * Time.deltaTime;
 			}
-			if (Input.GetKeyDown(KeyCode.Space)) {
+			if (Input.GetKeyDown(KeyCode.Space) && Vector3.Dot(Vector3.up, lastHitNormal) < .5f) {
 				Vector3 wallJump = (Vector3.up + lastHitNormal * 2.5f).normalized * jumpSpeed * 2.3f;
 				velocity.y = 0;
 				velocity += wallJump;
