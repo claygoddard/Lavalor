@@ -4,16 +4,19 @@ using System.Collections;
 public class CharacterControl : MonoBehaviour {
 	private CharacterController cc;
 	
-	private float moveSpeed = 2f;
+	private float moveSpeed;
 	private float turnSpeed = 150.0f;
 	private float initialJumpSpeed = 12.0f;
+	private float initialMoveSpeed = 2f;
 	private float jumpSpeed;
 	private Vector3 velocity = Vector3.zero;
 	private float damping = .8f;
 	private Vector3 rightBeforeJump;
 	private bool hasSpeedPowerup;
+	private bool hasSpeedPowerdown;
 	public bool isDying;
 	private float powerupClock = 0;
+	private float powerdownClock = 0;
 	bool grounded = false;
 	bool anyMovementKeysDown = false;
 	bool anyDirectionalKeysDown = false;
@@ -28,9 +31,11 @@ public class CharacterControl : MonoBehaviour {
 		this.playerFollow.position = this.transform.position + this.transform.up;
 		this.playerFollow.rotation = this.transform.rotation;
 		hasSpeedPowerup = false;
+		hasSpeedPowerdown = false;
 		isDying = false;
 		playerFire.Stop();
 		jumpSpeed = initialJumpSpeed;
+		moveSpeed = initialMoveSpeed;
 		cc.Move(transform.forward);
 	}
 	
@@ -77,8 +82,11 @@ public class CharacterControl : MonoBehaviour {
 			this.AirUpdate(hRotation, hMovement, sMovement);
 		}
 		powerupClock -= .02f;
+		powerdownClock -= .02f;
 		if(powerupClock >= 0)
 		{
+			
+			Debug.Log(powerupClock);
 			if(powerupClock%0.4f < 0.2f)
 			{
 				renderer.material.color = Color.green;	
@@ -87,12 +95,24 @@ public class CharacterControl : MonoBehaviour {
 			{
 				renderer.material.color = Color.yellow;
 			}
+			
+		}
+		else if(powerdownClock >= 0)
+		{
+			if(powerdownClock%0.4f < 0.2f)
+			{
+				renderer.material.color = Color.gray;	
+			}
+			else
+			{
+				renderer.material.color = Color.red;
+			}
 		}
 		else
 		{
 			renderer.material.color = Color.white;
-			hasSpeedPowerup = false;
-			jumpSpeed = initialJumpSpeed;
+			hasSpeedPowerdown = false;
+			moveSpeed = initialMoveSpeed;
 		}
 		CheckCollisionFlags();
 		anyMovementKeysDown = false;
@@ -192,8 +212,18 @@ public class CharacterControl : MonoBehaviour {
 			Destroy(hit.gameObject);
 			hasSpeedPowerup = true;
 			powerupClock = 10f;
+			powerdownClock = 0f;
 			renderer.material.color = Color.green;
 			jumpSpeed = 18f;
+		}
+		if(hit.gameObject.name == "Powerdown"){
+			GameManager.gameScore -= 20;
+			Destroy(hit.gameObject);
+			hasSpeedPowerdown = true;
+			powerdownClock = 10f;
+			powerupClock = 0f;
+			renderer.material.color = Color.grey;
+			moveSpeed = 0.5f;
 		}
 		TestForCrate(hit.gameObject, hit.normal);
 	}
