@@ -113,6 +113,7 @@ public class CharacterControl : MonoBehaviour {
 			renderer.material.color = Color.white;
 			hasSpeedPowerdown = false;
 			moveSpeed = initialMoveSpeed;
+			jumpSpeed = initialJumpSpeed;
 		}
 		CheckCollisionFlags();
 		anyMovementKeysDown = false;
