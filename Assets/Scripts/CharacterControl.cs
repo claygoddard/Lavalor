@@ -14,6 +14,7 @@ public class CharacterControl : MonoBehaviour {
 	private Vector3 rightBeforeJump;
 	private bool hasSpeedPowerup;
 	private bool hasSpeedPowerdown;
+	private bool justLanded;
 	public bool isDying;
 	private float powerupClock = 0;
 	private float powerdownClock = 0;
@@ -23,6 +24,8 @@ public class CharacterControl : MonoBehaviour {
 	private Vector3 lastHitNormal;
 	public ParticleSystem playerFire;
 	private bool first = true;
+	public AudioClip woodJump;
+	public AudioClip concreteJump;
 	
 	public Transform playerFollow;
 	
@@ -32,6 +35,7 @@ public class CharacterControl : MonoBehaviour {
 		this.playerFollow.rotation = this.transform.rotation;
 		hasSpeedPowerup = false;
 		hasSpeedPowerdown = false;
+		justLanded = true;
 		isDying = false;
 		playerFire.Stop();
 		jumpSpeed = initialJumpSpeed;
@@ -77,6 +81,22 @@ public class CharacterControl : MonoBehaviour {
 			first = false;
 		}
 		if (cc.isGrounded) {
+			if(justLanded)
+			{
+				Debug.Log("Landed");
+				audio.PlayOneShot(woodJump);
+				/*if(col.gameObject.name == "Ground")
+				{
+					Debug.Log("Ground");
+					audio.PlayOneShot(concreteJump);
+				}
+				else if(col.gameObject.name == "Crate")
+				{
+					Debug.Log("Crate");
+					audio.PlayOneShot(woodJump);
+				}*/
+				justLanded = false;
+			}
 			this.GroundedUpdate(hRotation, hMovement, sMovement);
 		} else {
 			this.AirUpdate(hRotation, hMovement, sMovement);
@@ -152,6 +172,7 @@ public class CharacterControl : MonoBehaviour {
 		velocity.y = 0.0f;
 		if (Input.GetKey(KeyCode.Space) && !isDying) {
 			velocity.y = jumpSpeed;
+			justLanded = true;
 		}
 		RotateAndMove(hRotation, hMovement, sMovement);
 		this.playerFollow.position = this.transform.position + this.transform.up;
@@ -167,8 +188,10 @@ public class CharacterControl : MonoBehaviour {
 			}
 			if (Input.GetKeyDown(KeyCode.Space) && Vector3.Dot(Vector3.up, lastHitNormal) < .5f) {
 				Vector3 wallJump = (Vector3.up + lastHitNormal * 2.5f).normalized * jumpSpeed * 2.3f;
+				audio.PlayOneShot(woodJump);
 				velocity.y = 0;
 				velocity += wallJump;
+				justLanded = true;
 			}
 		} else {
 			velocity.y += Physics.gravity.y * Time.deltaTime;
