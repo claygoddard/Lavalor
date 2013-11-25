@@ -30,6 +30,7 @@ public class CharacterControl : MonoBehaviour {
 	public Transform playerFollow;
 	
 	void Start () {
+		Time.timeScale = 0;
 		cc = gameObject.GetComponent<CharacterController>();
 		this.playerFollow.position = this.transform.position + this.transform.up;
 		this.playerFollow.rotation = this.transform.rotation;
@@ -51,7 +52,7 @@ public class CharacterControl : MonoBehaviour {
 		float hRotation = 0.0f;
 		float hMovement = 0.0f;
 		float sMovement = 0.0f;
-		if(!isDying)
+		if(!isDying && GameManager.gameStarted)
 		{
 			if (Input.GetMouseButton(0) || Input.GetMouseButton(1)) {
 				hRotation = Input.GetAxis("Mouse X") * turnSpeed;
@@ -79,6 +80,11 @@ public class CharacterControl : MonoBehaviour {
 				anyDirectionalKeysDown = true;
 			}
 			first = false;
+		}
+		if (Input.GetKey(KeyCode.Space)) {
+				GameManager.gameStarted = true;
+				Destroy(GameObject.Find("StartScreen"));
+				Time.timeScale = 1;
 		}
 		if (cc.isGrounded) {
 			if(justLanded)
@@ -239,6 +245,15 @@ public class CharacterControl : MonoBehaviour {
 			powerdownClock = 0f;
 			renderer.material.color = Color.green;
 			jumpSpeed = 18f;
+			velocity.y = 30.0f;
+			justLanded = true;
+			if (!isDying) {
+				velocity.y = jumpSpeed;
+				justLanded = true;
+			}
+			//RotateAndMove(hRotation, hMovement, sMovement);
+			this.playerFollow.position = this.transform.position + this.transform.up;
+			this.playerFollow.rotation = this.transform.rotation;
 		}
 		if(hit.gameObject.name == "Powerdown"){
 			GameManager.gameScore -= 20;

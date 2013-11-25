@@ -126,35 +126,45 @@ public class GameManager : MonoBehaviour {
 	}
 	
 	void Update () {
-		newCrateCounter += Time.deltaTime * crateAddSpeed;
-		if (newCrateCounter > newCrateCounterMax) {
-			newCrateCounter = 0.0f;
-			AddCrate(Mathf.Max(player.transform.position.y, highestGroundedCrate) + 10.0f);
-		}
-		crateAddSpeed += .0001f;
-		lava.transform.Translate(Vector3.up * lavaSpeed * Mathf.Sqrt(Mathf.Max(1.0f, player.transform.position.y - lava.transform.position.y) / 8.5f) * Time.deltaTime);
-		
-		if ((player.gameObject.transform.position.y-0.58) * 10 > gameScore && gameStarted) {
-			gameScore = (int)((player.gameObject.transform.position.y-0.58) * 10);
-		}
-		
-		if (player.renderer.bounds.Intersects(lava.renderer.bounds)) {
-			CharacterControl characterScript = GameObject.Find("Character").GetComponent<CharacterControl>();
-			characterScript.isDying = true;
-			characterScript.playerFire.Play();
-			endGameText = "DIED BY LAVA";
-			endGame = true;
-		}
-		
-		if (endGame) {
-			endGameCount += Time.deltaTime;
-			if (endGameCount > endGameTime) {
-				if (gameScore > PlayerPrefs.GetInt("highScore", 0)){
-					PlayerPrefs.SetInt("highScore", gameScore);
+		if(gameStarted)
+		{
+			newCrateCounter += Time.deltaTime * crateAddSpeed;
+			if (newCrateCounter > newCrateCounterMax) {
+				newCrateCounter = 0.0f;
+				AddCrate(Mathf.Max(player.transform.position.y, highestGroundedCrate) + 10.0f);
+			}
+			crateAddSpeed += .0001f;
+			lava.transform.Translate(Vector3.up * lavaSpeed * Mathf.Sqrt(Mathf.Max(1.0f, player.transform.position.y - lava.transform.position.y) / 8.5f) * Time.deltaTime);
+			
+			if ((player.gameObject.transform.position.y-0.58) * 10 > gameScore && gameStarted) {
+				gameScore = (int)((player.gameObject.transform.position.y-0.58) * 10);
+			}
+			
+			if (player.renderer.bounds.Intersects(lava.renderer.bounds)) {
+				CharacterControl characterScript = GameObject.Find("Character").GetComponent<CharacterControl>();
+				characterScript.isDying = true;
+				characterScript.playerFire.Play();
+				endGameText = "DIED BY LAVA";
+				endGame = true;
+			}
+			
+			if (endGame) {
+				endGameCount += Time.deltaTime;
+				if (endGameCount > endGameTime) {
+					if (gameScore > PlayerPrefs.GetInt("highScore", 0)){
+						PlayerPrefs.SetInt("highScore", gameScore);
+					}
+					gameScore = 0;
+					gameStarted = false;
+					Application.LoadLevel(0);
 				}
-				gameScore = 0;
-				gameStarted = false;
-				Application.LoadLevel(0);
+			}
+		}
+		else
+		{
+			if (Input.GetKey(KeyCode.Space)) {
+				gameStarted = true;
+				Destroy(GameObject.Find("StartScreen"));
 			}
 		}
 	}
