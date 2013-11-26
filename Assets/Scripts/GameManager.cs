@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour {
 	public static bool gameStarted = false;
 	
 	private float crateAddSpeed = 1.0f;
+	public AudioClip scream;
 	
 	private class CrateDesc {
 		public float height;
@@ -144,6 +145,7 @@ public class GameManager : MonoBehaviour {
 				CharacterControl characterScript = GameObject.Find("Character").GetComponent<CharacterControl>();
 				characterScript.isDying = true;
 				characterScript.playerFire.Play();
+				GameObject.Find("Character").audio.PlayOneShot(scream);
 				endGameText = "DIED BY LAVA";
 				endGame = true;
 			}

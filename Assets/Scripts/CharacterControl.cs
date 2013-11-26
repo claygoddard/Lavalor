@@ -5,9 +5,9 @@ public class CharacterControl : MonoBehaviour {
 	private CharacterController cc;
 	
 	private float moveSpeed;
-	private float turnSpeed = 150.0f;
-	private float initialJumpSpeed = 12.0f;
-	private float initialMoveSpeed = 2f;
+	public float turnSpeed = 150.0f;
+	public float initialJumpSpeed = 8.0f;
+	public float initialMoveSpeed = 2.0f;
 	private float jumpSpeed;
 	private Vector3 velocity = Vector3.zero;
 	private float damping = .8f;
@@ -26,6 +26,7 @@ public class CharacterControl : MonoBehaviour {
 	private bool first = true;
 	public AudioClip woodJump;
 	public AudioClip concreteJump;
+	public AudioClip crush;
 	
 	public Transform playerFollow;
 	
@@ -44,9 +45,9 @@ public class CharacterControl : MonoBehaviour {
 		cc.Move(transform.forward);
 	}
 	
-	void OnMouseDown () {
+	/*void OnMouseDown () {
 		Screen.lockCursor = true;
-	}
+	}*/
 	
 	void Update () {
 		float hRotation = 0.0f;
@@ -54,13 +55,16 @@ public class CharacterControl : MonoBehaviour {
 		float sMovement = 0.0f;
 		if(!isDying && GameManager.gameStarted)
 		{
-			if (Input.GetMouseButton(0) || Input.GetMouseButton(1)) {
+			/*if (Input.GetMouseButton(0) || Input.GetMouseButton(1)) {
 				hRotation = Input.GetAxis("Mouse X") * turnSpeed;
 				anyMovementKeysDown = true;
 				Screen.lockCursor = true;
 			} else {
 				Screen.lockCursor = false;
-			}
+			}*/
+			hRotation = Input.GetAxis("Mouse X") * turnSpeed;
+			anyMovementKeysDown = true;
+			Screen.lockCursor = true;
 			hMovement = Input.GetAxis("Vertical") * moveSpeed;
 			if (first) {
 				// so hacky, eww
@@ -218,6 +222,7 @@ public class CharacterControl : MonoBehaviour {
 					gm.endGameText = "DIED BY SQUISHING!!";
 					
 					//Squishing death animation
+					audio.PlayOneShot(crush);
 					Vector3 originalScale = transform.localScale;
 					Vector3 crushedScale = transform.localScale;
 					crushedScale.y = 0.1f;
