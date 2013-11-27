@@ -30,6 +30,8 @@ public class GameManager : MonoBehaviour {
 	private float crateAddSpeed = 1.0f;
 	public AudioClip scream;
 	
+	public GUIStyle hud = new GUIStyle();
+	
 	private class CrateDesc {
 		public float height;
 		public bool xRot, yRot, isLong;
@@ -115,10 +117,10 @@ public class GameManager : MonoBehaviour {
 	
 	void OnGUI () {
 		if (endGame) {
-			GUI.Label(new Rect(Screen.width/2.0f,0.0f,Screen.width, Screen.height), endGameText);
+			GUI.Label(new Rect(0.0f,25.0f,Screen.width, Screen.height), endGameText, hud);
 		}
-		GUI.Label(new Rect(0.0f,0.0f,Screen.width, Screen.height), "SCORE: " + gameScore);
-		GUI.Label(new Rect(0.0f,20.0f,Screen.width, Screen.height), "HIGH SCORE: " + PlayerPrefs.GetInt("highScore", 0));
+		GUI.Label(new Rect(5.0f,0.0f,Screen.width, Screen.height), "SCORE: " + gameScore);
+		GUI.Label(new Rect(5.0f,20.0f,Screen.width, Screen.height), "HIGH SCORE: " + PlayerPrefs.GetInt("highScore", 0));
 		//GUI.Label(new Rect(0.0f,40.0f,Screen.width, Screen.height), "HEIGHT: " + player.gameObject.transform.position.y);
 	}
 	
