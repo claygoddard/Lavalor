@@ -6,7 +6,7 @@ public class CharacterControl : MonoBehaviour {
 	
 	private float moveSpeed;
 	public float turnSpeed = 150.0f;
-	public float initialJumpSpeed = 8.0f;
+	public float initialJumpSpeed = 12.0f;
 	public float initialMoveSpeed = 2.0f;
 	private float jumpSpeed;
 	private Vector3 velocity = Vector3.zero;
@@ -206,7 +206,7 @@ public class CharacterControl : MonoBehaviour {
 		} else {
 			velocity.y += Physics.gravity.y * Time.deltaTime;
 		}
-		RotateAndMove(hRotation, hMovement, sMovement);
+		RotateAndMove(hRotation, hMovement * 0.5f, sMovement);
 		this.playerFollow.position = this.transform.position + this.transform.up;
 	}
 	
